@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
-from src.core.data.db.chroma.utils import load_fixtures
+from src.core.data.db.qdrant.utils import load_fixtures
 from src.config import Settings, SettingsSingleton
 from src.application.api import router
 
