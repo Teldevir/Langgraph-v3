@@ -31,6 +31,6 @@ class QdrantSingleton:
             cls._instance = QdrantVectorStore(
                 client=qdrant_client,
                 collection_name=settings.qdrant.collection_name,
-                embeddings=cls._get_embeddings(settings),
+                embedding=cls._get_embeddings(settings),
             )
         return cls._instance
