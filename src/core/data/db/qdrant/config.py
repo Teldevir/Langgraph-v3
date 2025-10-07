@@ -24,6 +24,8 @@ class QdrantSingleton:
                 port=settings.qdrant.port,
                 grpc_port=settings.qdrant.grpc_port,
                 prefer_grpc=settings.qdrant.prefer_grpc,
+                https=settings.qdrant.use_https,
+                api_key=settings.qdrant.api_key,
             )
 
             cls._instance = QdrantVectorStore(
