@@ -1,7 +1,7 @@
 import asyncio
 from aiogram import Dispatcher, Bot
 
-from src.core.data.db.chroma.utils import load_fixtures
+from src.core.data.db.qdrant.utils import load_fixtures
 from src.bot.bot import BotSingleton
 from src.bot.handlers import router
 

@@ -34,12 +34,25 @@ class PostgresConfig(EnvSettings):
         env_prefix = 'postgres_'
 
 
-class ChromaConfig(EnvSettings):
-    host: str = Field('chroma')
-    port: int = Field(8000)
+class QdrantConfig(EnvSettings):
+    host: str = Field('qdrant')
+    port: int = Field(6333)
+    grpc_port: int = Field(6334)
+    prefer_grpc: bool = Field(False)
+    api_key: str | None = Field(default=None)
+    use_https: bool = Field(False)
+    collection_name: str = Field('langgraph-documents')
+
+    @field_validator('api_key', mode='before')
+    @classmethod
+    def blank_api_key_to_none(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        value = value.strip()
+        return value or None
 
     class Config:
-        env_prefix = 'chromadb_'
+        env_prefix = 'qdrant_'
 
 
 class AppConfig(EnvSettings):
@@ -63,7 +76,7 @@ class AppConfig(EnvSettings):
 class Settings(EnvSettings):
     langgraph: LanggraphConfig = LanggraphConfig()
     postgres: PostgresConfig = PostgresConfig()
-    chroma: ChromaConfig = ChromaConfig()
+    qdrant: QdrantConfig = QdrantConfig()
     app: AppConfig = AppConfig()
 
 
