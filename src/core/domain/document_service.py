@@ -1,4 +1,4 @@
-from langchain_qdrant import QdrantVectorStore
+from langchain_qdrant import Qdrant
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from src.config import SettingsSingleton
@@ -9,7 +9,7 @@ settings = SettingsSingleton.get_instance()
 
 class DocumentService:
     def __init__(self):
-        self.vector_store: QdrantVectorStore = QdrantSingleton.get_instance()
+        self.vector_store: Qdrant = QdrantSingleton.get_instance()
 
     def search(self, query: str) -> list[Document]:
         try:
