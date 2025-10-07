@@ -34,12 +34,15 @@ class PostgresConfig(EnvSettings):
         env_prefix = 'postgres_'
 
 
-class ChromaConfig(EnvSettings):
-    host: str = Field('chroma')
-    port: int = Field(8000)
+class QdrantConfig(EnvSettings):
+    host: str = Field('qdrant')
+    port: int = Field(6333)
+    grpc_port: int = Field(6334)
+    prefer_grpc: bool = Field(False)
+    collection_name: str = Field('langgraph-documents')
 
     class Config:
-        env_prefix = 'chromadb_'
+        env_prefix = 'qdrant_'
 
 
 class AppConfig(EnvSettings):
@@ -63,7 +66,7 @@ class AppConfig(EnvSettings):
 class Settings(EnvSettings):
     langgraph: LanggraphConfig = LanggraphConfig()
     postgres: PostgresConfig = PostgresConfig()
-    chroma: ChromaConfig = ChromaConfig()
+    qdrant: QdrantConfig = QdrantConfig()
     app: AppConfig = AppConfig()
 
 

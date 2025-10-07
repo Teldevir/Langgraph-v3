@@ -1,17 +1,15 @@
-from typing import Any
-
-from langchain_chroma import Chroma
+from langchain_qdrant import QdrantVectorStore
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from src.config import SettingsSingleton
-from src.core.data.db.chroma.config import ChromaSingleton
+from src.core.data.db.qdrant.config import QdrantSingleton
 
 settings = SettingsSingleton.get_instance()
 
 
 class DocumentService:
     def __init__(self):
-        self.vector_store: Chroma = ChromaSingleton.get_instance()
+        self.vector_store: QdrantVectorStore = QdrantSingleton.get_instance()
 
     def search(self, query: str) -> list[Document]:
         try:
@@ -49,11 +47,49 @@ class DocumentService:
             self.upload_from_text(content)
 
     def get_chunks(self) -> list[str]:
-        data: dict[str, Any] = self.vector_store.get()
-        chunks: list[str] = data.get('documents', [])
+        chunks: list[str] = []
+        payload_key = getattr(self.vector_store, 'content_payload_key', 'page_content')
+        offset = None
+
+        while True:
+            records, offset = self.vector_store.client.scroll(
+                collection_name=settings.qdrant.collection_name,
+                with_payload=True,
+                with_vectors=False,
+                limit=200,
+                offset=offset,
+            )
+
+            if not records:
+                break
+
+            for record in records:
+                if record.payload and payload_key in record.payload:
+                    chunks.append(record.payload[payload_key])
+
+            if offset is None:
+                break
+
         return chunks
 
     def clear(self):
-        ids = self.vector_store.get()['ids']
-        if ids:
-            self.vector_store.delete(ids)
+        offset = None
+
+        while True:
+            records, offset = self.vector_store.client.scroll(
+                collection_name=settings.qdrant.collection_name,
+                with_payload=False,
+                with_vectors=False,
+                limit=200,
+                offset=offset,
+            )
+
+            if not records:
+                break
+
+            ids = [record.id for record in records if record.id is not None]
+            if ids:
+                self.vector_store.delete(ids=ids)
+
+            if offset is None:
+                break
