@@ -40,7 +40,7 @@ def ask(question: str, thread_id: str) -> str:
         base_prompt = settings.app.prompt
         graph: CompiledStateGraph = build_graph(checkpointer)
         service = DocumentService()
-        context: str = service.search_with_formatting(question)
+        context: str = service.get_full_context()
 
         prompt: str = f'{base_prompt}\nконтекст: {context}\nвопрос: {question}'
         user_input: State = {'messages': [{'role': 'user', 'content': prompt}]}

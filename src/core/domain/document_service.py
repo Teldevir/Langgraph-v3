@@ -13,9 +13,10 @@ class DocumentService:
 
     def search(self, query: str) -> list[Document]:
         try:
+            total_chunks = self._count_chunks()
             return self.vector_store.similarity_search(
                 query=query,
-                k=settings.langgraph.similarity_search_k
+                k=max(settings.langgraph.similarity_search_k, total_chunks)
             )
         except Exception as e:
             print(f'Ошибка при поиске: {e}')
@@ -24,6 +25,10 @@ class DocumentService:
     def search_with_formatting(self, query: str) -> str:
         docs: list[Document] = self.search(query)
         return '\n'.join([doc.page_content for doc in docs])
+
+    def get_full_context(self) -> str:
+        chunks = self.get_chunks()
+        return '\n\n'.join(chunk for chunk in chunks if chunk)
 
     def upload_from_text(self, text: str) -> None:
         try:
@@ -71,6 +76,13 @@ class DocumentService:
                 break
 
         return chunks
+
+    def _count_chunks(self) -> int:
+        response = self.vector_store.client.count(
+            collection_name=settings.qdrant.collection_name,
+            exact=True,
+        )
+        return getattr(response, 'count', 0)
 
     def clear(self):
         offset = None
